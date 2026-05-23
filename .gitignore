@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+kibom-env/
+
+# Environment variables / secrets
+.env
+
+# Generated files
+cache/
+reports/
+*.xlsx
+*.log
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/
+
+# Temporary
+tmp/

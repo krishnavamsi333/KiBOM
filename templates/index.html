@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KiBOM — BOM Enricher</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:      #1a2744;
+      --mid-navy:  #2c4770;
+      --accent:    #3b82f6;
+      --accent-dk: #1d4ed8;
+      --green:     #16a34a;
+      --red:       #dc2626;
+      --bg:        #f1f5f9;
+      --card:      #ffffff;
+      --border:    #e2e8f0;
+      --text:      #1e293b;
+      --muted:     #64748b;
+    }
+
+    body {
+      font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--navy);
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    header svg { flex-shrink: 0; }
+    header h1  { font-size: 1.25rem; font-weight: 700; color: #fff; letter-spacing: -.3px; }
+    header p   { font-size: .8rem; color: #94a3b8; margin-top: 1px; }
+
+    /* ── Main ── */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 16px;
+      gap: 28px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 32px;
+      width: 100%;
+      max-width: 640px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+
+    /* ── Drop Zone ── */
+    #drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 44px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .18s, background .18s;
+    }
+    #drop-zone:hover, #drop-zone.dragover {
+      border-color: var(--accent);
+      background: #eff6ff;
+    }
+    #drop-zone svg { color: var(--muted); margin-bottom: 12px; }
+    #drop-zone h2  { font-size: 1rem; font-weight: 600; color: var(--text); }
+    #drop-zone p   { font-size: .82rem; color: var(--muted); margin-top: 6px; }
+    #drop-zone span.btn-link {
+      color: var(--accent); font-weight: 600; text-decoration: underline; cursor: pointer;
+    }
+    #file-input { display: none; }
+
+    #file-name {
+      margin-top: 14px;
+      font-size: .83rem;
+      color: var(--muted);
+      min-height: 1.2em;
+    }
+    #file-name.has-file { color: var(--green); font-weight: 500; }
+
+    /* ── Project name ── */
+    .field { margin-top: 20px; }
+    .field label { display: block; font-size: .82rem; font-weight: 600;
+                   color: var(--muted); margin-bottom: 6px; }
+    .field input {
+      width: 100%; padding: 9px 12px; border: 1px solid var(--border);
+      border-radius: 8px; font-size: .9rem; outline: none;
+      transition: border-color .15s;
+    }
+    .field input:focus { border-color: var(--accent); }
+
+    /* ── Submit button ── */
+    #submit-btn {
+      margin-top: 24px;
+      width: 100%;
+      padding: 11px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      font-size: .95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    #submit-btn:hover:not(:disabled) { background: var(--accent-dk); }
+    #submit-btn:disabled { opacity: .55; cursor: not-allowed; }
+
+    /* ── Progress card ── */
+    #progress-card { display: none; }
+
+    .prog-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .prog-header h3 { font-size: 1rem; font-weight: 700; }
+
+    .bar-wrap {
+      background: var(--bg);
+      border-radius: 99px;
+      height: 8px;
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+    #prog-bar {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 99px;
+      width: 0%;
+      transition: width .35s ease;
+    }
+    #prog-bar.done  { background: var(--green); }
+    #prog-bar.error { background: var(--red); }
+
+    #log-box {
+      background: #0f172a;
+      border-radius: 8px;
+      padding: 14px 16px;
+      height: 220px;
+      overflow-y: auto;
+      font-family: "JetBrains Mono", "Fira Code", monospace;
+      font-size: .78rem;
+      line-height: 1.65;
+      color: #94a3b8;
+    }
+    #log-box .line-ok   { color: #86efac; }
+    #log-box .line-err  { color: #fca5a5; }
+    #log-box .line-info { color: #93c5fd; }
+
+    /* ── Download button ── */
+    #dl-btn {
+      display: none;
+      margin-top: 16px;
+      width: 100%;
+      padding: 11px;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      font-size: .95rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      text-align: center;
+      transition: background .15s;
+    }
+    #dl-btn:hover { background: #15803d; }
+
+    /* ── Spinner ── */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2.5px solid #dbeafe;
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .65s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    footer {
+      text-align: center;
+      padding: 18px;
+      font-size: .76rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+    <rect width="32" height="32" rx="8" fill="#2c4770"/>
+    <path d="M8 10h16M8 16h10M8 22h13" stroke="#93c5fd" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="25" cy="22" r="4" fill="#3b82f6"/>
+    <path d="M23.5 22l1 1 2-2" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <div>
+    <h1>KiBOM Enricher</h1>
+    <p>Upload a KiCad BOM CSV — get a fully enriched Excel BOM with live Mouser pricing</p>
+  </div>
+</header>
+
+<main>
+
+  <!-- Upload card -->
+  <div class="card" id="upload-card">
+    <div id="drop-zone">
+      <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M12 16.5V9.75m0 0-3 3m3-3 3 3M6.75 19.5a4.5 4.5 0 0 1-1.632-8.664 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z"/>
+      </svg>
+      <h2>Drop your KiCad BOM CSV here</h2>
+      <p>or <span class="btn-link" id="browse-link">browse to upload</span></p>
+      <input type="file" id="file-input" accept=".csv" />
+    </div>
+    <div id="file-name">No file selected</div>
+
+    <div class="field">
+      <label for="project-name">Project name (optional)</label>
+      <input type="text" id="project-name" placeholder="e.g. 8-Channel Solenoid Valve Controller" />
+    </div>
+
+    <button id="submit-btn" disabled>Enrich BOM</button>
+  </div>
+
+  <!-- Progress card -->
+  <div class="card" id="progress-card">
+    <div class="prog-header">
+      <div class="spinner" id="spinner"></div>
+      <h3 id="prog-title">Processing…</h3>
+    </div>
+    <div class="bar-wrap"><div id="prog-bar"></div></div>
+    <div id="log-box"></div>
+    <a id="dl-btn" href="#" download>⬇ Download Enriched BOM (.xlsx)</a>
+  </div>
+
+</main>
+
+<footer>KiBOM — open source BOM enrichment tool</footer>
+
+<script>
+  const dropZone   = document.getElementById("drop-zone");
+  const fileInput  = document.getElementById("file-input");
+  const browseLink = document.getElementById("browse-link");
+  const fileNameEl = document.getElementById("file-name");
+  const submitBtn  = document.getElementById("submit-btn");
+  const projectIn  = document.getElementById("project-name");
+
+  const uploadCard   = document.getElementById("upload-card");
+  const progressCard = document.getElementById("progress-card");
+  const spinner      = document.getElementById("spinner");
+  const progTitle    = document.getElementById("prog-title");
+  const progBar      = document.getElementById("prog-bar");
+  const logBox       = document.getElementById("log-box");
+  const dlBtn        = document.getElementById("dl-btn");
+
+  let selectedFile = null;
+
+  // ── File selection ──────────────────────────────────────────────────────────
+  browseLink.addEventListener("click", () => fileInput.click());
+  fileInput.addEventListener("change", () => setFile(fileInput.files[0]));
+
+  dropZone.addEventListener("dragover",  e => { e.preventDefault(); dropZone.classList.add("dragover"); });
+  dropZone.addEventListener("dragleave", ()  => dropZone.classList.remove("dragover"));
+  dropZone.addEventListener("drop", e => {
+    e.preventDefault();
+    dropZone.classList.remove("dragover");
+    setFile(e.dataTransfer.files[0]);
+  });
+
+  function setFile(file) {
+    if (!file) return;
+    if (!file.name.toLowerCase().endsWith(".csv")) {
+      alert("Please upload a .csv file.");
+      return;
+    }
+    selectedFile = file;
+    fileNameEl.textContent = `✔ ${file.name}  (${(file.size / 1024).toFixed(1)} KB)`;
+    fileNameEl.classList.add("has-file");
+    if (!projectIn.value) {
+      projectIn.value = file.name.replace(/\.csv$/i, "").replace(/[_-]+/g, " ");
+    }
+    submitBtn.disabled = false;
+  }
+
+  // ── Submit ──────────────────────────────────────────────────────────────────
+  submitBtn.addEventListener("click", async () => {
+    if (!selectedFile) return;
+
+    const fd = new FormData();
+    fd.append("bom_file", selectedFile);
+    fd.append("project_name", projectIn.value.trim());
+
+    submitBtn.disabled = true;
+
+    // Switch panels
+    uploadCard.style.display   = "none";
+    progressCard.style.display = "block";
+
+    let jobId;
+    try {
+      const res = await fetch("/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Upload failed");
+      jobId = data.job_id;
+    } catch (err) {
+      showError(err.message);
+      return;
+    }
+
+    // Stream progress via SSE
+    const es = new EventSource(`/progress/${jobId}`);
+    es.onmessage = e => {
+      const payload = JSON.parse(e.data);
+      if (payload.ping) return;
+
+      if (payload.msg) addLog(payload.msg);
+      if (payload.pct != null) setBar(payload.pct);
+
+      if (payload.done) {
+        es.close();
+        finishOk(jobId);
+      } else if (payload.error) {
+        es.close();
+        showError(payload.error);
+      }
+    };
+    es.onerror = () => { es.close(); showError("Connection lost."); };
+  });
+
+  // ── Helpers ─────────────────────────────────────────────────────────────────
+  function addLog(msg) {
+    const div = document.createElement("div");
+    if (msg.startsWith("❌"))       div.className = "line-err";
+    else if (msg.startsWith("✅") || msg.startsWith("⬇")) div.className = "line-ok";
+    else                             div.className = "line-info";
+    div.textContent = msg;
+    logBox.appendChild(div);
+    logBox.scrollTop = logBox.scrollHeight;
+  }
+
+  function setBar(pct) {
+    progBar.style.width = pct + "%";
+  }
+
+  function finishOk(jobId) {
+    setBar(100);
+    progBar.classList.add("done");
+    progTitle.textContent = "✅ BOM enriched successfully!";
+    spinner.style.display = "none";
+    dlBtn.href = `/download/${jobId}`;
+    dlBtn.style.display = "block";
+    addLog("⬇ Click the button below to download your BOM.");
+  }
+
+  function showError(msg) {
+    progBar.classList.add("error");
+    progTitle.textContent = "❌ Error";
+    spinner.style.display = "none";
+    addLog("❌ " + msg);
+  }
+</script>
+</body>
+</html>

@@ -4,120 +4,381 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>KiBOM — BOM Enricher</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --navy:      #1a2744;
-      --mid-navy:  #2c4770;
-      --accent:    #3b82f6;
-      --accent-dk: #1d4ed8;
-      --green:     #16a34a;
-      --red:       #dc2626;
-      --bg:        #f1f5f9;
-      --card:      #ffffff;
-      --border:    #e2e8f0;
-      --text:      #1e293b;
-      --muted:     #64748b;
+      --bg:        #090e1a;
+      --surface:   #0f1729;
+      --surface2:  #162035;
+      --border:    #1f2d4a;
+      --border-hi: #2a4070;
+      --accent:    #00d4ff;
+      --accent-dk: #0099cc;
+      --accent-glow: rgba(0, 212, 255, 0.18);
+      --green:     #00e5a0;
+      --green-glow: rgba(0, 229, 160, 0.15);
+      --red:       #ff4d6d;
+      --red-glow:  rgba(255, 77, 109, 0.15);
+      --yellow:    #ffc840;
+      --text:      #e2ecff;
+      --text-muted: #5b7aab;
+      --text-dim:   #2d4470;
+      --mono:      'Space Mono', monospace;
+      --sans:      'DM Sans', sans-serif;
+      --display:   'Syne', sans-serif;
     }
 
+    html { scroll-behavior: smooth; }
+
     body {
-      font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+      font-family: var(--sans);
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* ── Grid background ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
     }
 
     /* ── Header ── */
     header {
-      background: var(--navy);
-      padding: 18px 32px;
+      position: relative;
+      z-index: 10;
+      padding: 20px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: rgba(9, 14, 26, 0.85);
+      backdrop-filter: blur(12px);
+    }
+
+    .logo-group {
       display: flex;
       align-items: center;
       gap: 14px;
     }
-    header svg { flex-shrink: 0; }
-    header h1  { font-size: 1.25rem; font-weight: 700; color: #fff; letter-spacing: -.3px; }
-    header p   { font-size: .8rem; color: #94a3b8; margin-top: 1px; }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      position: relative;
+    }
+
+    .logo-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .logo-text h1 {
+      font-family: var(--display);
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -.5px;
+    }
+
+    .logo-text h1 span { color: var(--accent); }
+
+    .logo-text p {
+      font-family: var(--mono);
+      font-size: .65rem;
+      color: var(--text-muted);
+      margin-top: 1px;
+      letter-spacing: .05em;
+    }
+
+    .header-badge {
+      font-family: var(--mono);
+      font-size: .65rem;
+      color: var(--accent);
+      border: 1px solid var(--border-hi);
+      padding: 4px 10px;
+      border-radius: 4px;
+      letter-spacing: .08em;
+      background: rgba(0, 212, 255, 0.04);
+    }
 
     /* ── Main ── */
     main {
       flex: 1;
+      position: relative;
+      z-index: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 48px 16px;
-      gap: 28px;
+      padding: 60px 20px 40px;
+      gap: 24px;
     }
 
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 32px;
+    /* ── Hero text ── */
+    .hero {
+      text-align: center;
+      max-width: 540px;
+      animation: fadeUp .6s ease both;
+    }
+
+    .hero-label {
+      font-family: var(--mono);
+      font-size: .68rem;
+      color: var(--accent);
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .hero-label::before,
+    .hero-label::after {
+      content: '';
+      display: block;
+      width: 30px;
+      height: 1px;
+      background: var(--accent);
+      opacity: .4;
+    }
+
+    .hero h2 {
+      font-family: var(--display);
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.2;
+      letter-spacing: -.5px;
+    }
+
+    .hero h2 em {
+      font-style: normal;
+      color: var(--accent);
+    }
+
+    .hero p {
+      margin-top: 10px;
+      font-size: .88rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* ── Panel ── */
+    .panel {
       width: 100%;
-      max-width: 640px;
-      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+      max-width: 600px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp .6s .1s ease both;
+    }
+
+    .panel::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: .5;
+    }
+
+    /* Corner decoration */
+    .panel::after {
+      content: '';
+      position: absolute;
+      top: 12px; right: 12px;
+      width: 6px; height: 6px;
+      border-top: 1.5px solid var(--accent);
+      border-right: 1.5px solid var(--accent);
+      opacity: .4;
     }
 
     /* ── Drop Zone ── */
     #drop-zone {
-      border: 2px dashed var(--border);
+      border: 1.5px dashed var(--border-hi);
       border-radius: 10px;
-      padding: 44px 24px;
+      padding: 40px 24px;
       text-align: center;
       cursor: pointer;
-      transition: border-color .18s, background .18s;
+      transition: all .2s ease;
+      background: var(--surface2);
+      position: relative;
+      overflow: hidden;
     }
-    #drop-zone:hover, #drop-zone.dragover {
+
+    #drop-zone::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, var(--accent-glow), transparent 70%);
+      opacity: 0;
+      transition: opacity .2s;
+    }
+
+    #drop-zone:hover::before,
+    #drop-zone.dragover::before { opacity: 1; }
+
+    #drop-zone:hover,
+    #drop-zone.dragover {
       border-color: var(--accent);
-      background: #eff6ff;
+      border-style: solid;
     }
-    #drop-zone svg { color: var(--muted); margin-bottom: 12px; }
-    #drop-zone h2  { font-size: 1rem; font-weight: 600; color: var(--text); }
-    #drop-zone p   { font-size: .82rem; color: var(--muted); margin-top: 6px; }
+
+    .drop-icon {
+      width: 44px;
+      height: 44px;
+      margin: 0 auto 16px;
+      background: var(--surface);
+      border: 1px solid var(--border-hi);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      transition: transform .2s, box-shadow .2s;
+    }
+
+    #drop-zone:hover .drop-icon {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px var(--accent-glow);
+    }
+
+    #drop-zone h2 {
+      font-family: var(--display);
+      font-size: .95rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    #drop-zone p {
+      font-size: .8rem;
+      color: var(--text-muted);
+      margin-top: 5px;
+    }
+
     #drop-zone span.btn-link {
-      color: var(--accent); font-weight: 600; text-decoration: underline; cursor: pointer;
+      color: var(--accent);
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(0, 212, 255, .3);
+      transition: border-color .15s;
     }
+
+    #drop-zone span.btn-link:hover { border-color: var(--accent); }
     #file-input { display: none; }
 
     #file-name {
-      margin-top: 14px;
-      font-size: .83rem;
-      color: var(--muted);
+      margin-top: 12px;
+      font-family: var(--mono);
+      font-size: .72rem;
+      color: var(--text-muted);
       min-height: 1.2em;
+      letter-spacing: .02em;
+      padding: 0 2px;
     }
-    #file-name.has-file { color: var(--green); font-weight: 500; }
 
-    /* ── Project name ── */
-    .field { margin-top: 20px; }
-    .field label { display: block; font-size: .82rem; font-weight: 600;
-                   color: var(--muted); margin-bottom: 6px; }
+    #file-name.has-file { color: var(--green); }
+
+    /* ── Field ── */
+    .field { margin-top: 18px; }
+
+    .field label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: .68rem;
+      color: var(--text-muted);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .field label::before {
+      content: '//';
+      color: var(--text-dim);
+    }
+
     .field input {
-      width: 100%; padding: 9px 12px; border: 1px solid var(--border);
-      border-radius: 8px; font-size: .9rem; outline: none;
-      transition: border-color .15s;
-    }
-    .field input:focus { border-color: var(--accent); }
-
-    /* ── Submit button ── */
-    #submit-btn {
-      margin-top: 24px;
       width: 100%;
-      padding: 11px;
+      padding: 10px 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: var(--sans);
+      font-size: .88rem;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+
+    .field input::placeholder { color: var(--text-muted); opacity: .6; }
+
+    .field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    /* ── Submit ── */
+    #submit-btn {
+      margin-top: 22px;
+      width: 100%;
+      padding: 13px;
       background: var(--accent);
-      color: #fff;
+      color: #050c1a;
       border: none;
       border-radius: 9px;
-      font-size: .95rem;
-      font-weight: 600;
+      font-family: var(--display);
+      font-size: .92rem;
+      font-weight: 700;
+      letter-spacing: .01em;
       cursor: pointer;
-      transition: background .15s;
+      position: relative;
+      overflow: hidden;
+      transition: background .15s, transform .1s, box-shadow .15s;
     }
-    #submit-btn:hover:not(:disabled) { background: var(--accent-dk); }
-    #submit-btn:disabled { opacity: .55; cursor: not-allowed; }
+
+    #submit-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,.15) 0%, transparent 60%);
+    }
+
+    #submit-btn:hover:not(:disabled) {
+      background: #2be5ff;
+      box-shadow: 0 4px 20px rgba(0, 212, 255, .35);
+      transform: translateY(-1px);
+    }
+
+    #submit-btn:active:not(:disabled) { transform: translateY(0); }
+
+    #submit-btn:disabled {
+      background: var(--surface2);
+      color: var(--text-dim);
+      cursor: not-allowed;
+      border: 1px solid var(--border);
+    }
 
     /* ── Progress card ── */
     #progress-card { display: none; }
@@ -125,106 +386,282 @@
     .prog-header {
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 16px;
+      gap: 12px;
+      margin-bottom: 20px;
     }
-    .prog-header h3 { font-size: 1rem; font-weight: 700; }
 
-    .bar-wrap {
-      background: var(--bg);
-      border-radius: 99px;
-      height: 8px;
-      overflow: hidden;
-      margin-bottom: 18px;
+    #prog-title {
+      font-family: var(--display);
+      font-size: .98rem;
+      font-weight: 700;
+      color: var(--text);
     }
+
+    /* Progress bar */
+    .bar-wrap {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      height: 6px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
     #prog-bar {
       height: 100%;
-      background: var(--accent);
-      border-radius: 99px;
+      background: linear-gradient(90deg, var(--accent-dk), var(--accent));
+      border-radius: 4px;
       width: 0%;
-      transition: width .35s ease;
+      transition: width .4s cubic-bezier(.4, 0, .2, 1);
+      position: relative;
     }
-    #prog-bar.done  { background: var(--green); }
-    #prog-bar.error { background: var(--red); }
+
+    #prog-bar::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 30px; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.4));
+      animation: shimmer 1.2s ease infinite;
+    }
+
+    @keyframes shimmer {
+      0%   { opacity: 0; transform: translateX(-10px); }
+      50%  { opacity: 1; }
+      100% { opacity: 0; transform: translateX(10px); }
+    }
+
+    #prog-bar.done  {
+      background: linear-gradient(90deg, #00a870, var(--green));
+      box-shadow: 0 0 10px var(--green-glow);
+    }
+    #prog-bar.done::after  { display: none; }
+    #prog-bar.error { background: var(--red); box-shadow: 0 0 10px var(--red-glow); }
+    #prog-bar.error::after { display: none; }
+
+    /* Terminal log */
+    #log-box {
+      background: #06090f;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      height: 240px;
+      overflow-y: auto;
+      font-family: var(--mono);
+      font-size: .72rem;
+      line-height: 1.8;
+      color: #4a6a9a;
+      scroll-behavior: smooth;
+    }
+
+    #log-box::-webkit-scrollbar { width: 4px; }
+    #log-box::-webkit-scrollbar-track { background: transparent; }
+    #log-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* Terminal header bar */
+    .log-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: #06090f;
+      border: 1px solid var(--border);
+      border-bottom: none;
+      border-radius: 10px 10px 0 0;
+      margin-top: 0;
+    }
+
+    .log-header .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+    }
+
+    .log-header .dot.red    { background: #ff5f56; }
+    .log-header .dot.yellow { background: #febc2e; }
+    .log-header .dot.green  { background: #27c840; }
+
+    .log-header span {
+      font-family: var(--mono);
+      font-size: .62rem;
+      color: var(--text-dim);
+      margin-left: 6px;
+      letter-spacing: .06em;
+    }
 
     #log-box {
-      background: #0f172a;
-      border-radius: 8px;
-      padding: 14px 16px;
-      height: 220px;
-      overflow-y: auto;
-      font-family: "JetBrains Mono", "Fira Code", monospace;
-      font-size: .78rem;
-      line-height: 1.65;
-      color: #94a3b8;
+      border-radius: 0 0 10px 10px;
     }
-    #log-box .line-ok   { color: #86efac; }
-    #log-box .line-err  { color: #fca5a5; }
-    #log-box .line-info { color: #93c5fd; }
+
+    .log-line { display: flex; gap: 10px; align-items: flex-start; }
+    .log-line .ts {
+      color: var(--text-dim);
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    #log-box .line-ok   { color: var(--green); }
+    #log-box .line-err  { color: var(--red); }
+    #log-box .line-info { color: #5b9bd5; }
 
     /* ── Download button ── */
     #dl-btn {
       display: none;
       margin-top: 16px;
       width: 100%;
-      padding: 11px;
-      background: var(--green);
-      color: #fff;
-      border: none;
+      padding: 13px;
+      background: transparent;
+      color: var(--green);
+      border: 1.5px solid var(--green);
       border-radius: 9px;
-      font-size: .95rem;
-      font-weight: 600;
+      font-family: var(--display);
+      font-size: .92rem;
+      font-weight: 700;
       cursor: pointer;
       text-decoration: none;
       text-align: center;
-      transition: background .15s;
+      transition: all .2s;
+      position: relative;
+      overflow: hidden;
     }
-    #dl-btn:hover { background: #15803d; }
+
+    #dl-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--green-glow);
+      opacity: 0;
+      transition: opacity .2s;
+    }
+
+    #dl-btn:hover::before { opacity: 1; }
+
+    #dl-btn:hover {
+      box-shadow: 0 0 20px var(--green-glow);
+      transform: translateY(-1px);
+    }
 
     /* ── Spinner ── */
     .spinner {
       width: 18px; height: 18px;
-      border: 2.5px solid #dbeafe;
+      border: 2px solid var(--border-hi);
       border-top-color: var(--accent);
       border-radius: 50%;
-      animation: spin .65s linear infinite;
+      animation: spin .7s linear infinite;
+      flex-shrink: 0;
     }
+
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ── Stat chips (below hero) ── */
+    .stat-row {
+      display: flex;
+      gap: 10px;
+      animation: fadeUp .6s .05s ease both;
+    }
+
+    .stat-chip {
+      font-family: var(--mono);
+      font-size: .65rem;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 5px 12px;
+      border-radius: 99px;
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: .04em;
+    }
+
+    .stat-chip .dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 4px var(--accent);
+      animation: pulse 2s ease infinite;
+    }
+
+    .stat-chip .dot.green { background: var(--green); box-shadow: 0 0 4px var(--green); }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: .4; }
+    }
+
+    /* ── Footer ── */
     footer {
+      position: relative;
+      z-index: 1;
       text-align: center;
-      padding: 18px;
-      font-size: .76rem;
-      color: var(--muted);
+      padding: 20px;
+      font-family: var(--mono);
+      font-size: .64rem;
+      color: var(--text-dim);
+      letter-spacing: .06em;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
 
 <header>
-  <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-    <rect width="32" height="32" rx="8" fill="#2c4770"/>
-    <path d="M8 10h16M8 16h10M8 22h13" stroke="#93c5fd" stroke-width="2" stroke-linecap="round"/>
-    <circle cx="25" cy="22" r="4" fill="#3b82f6"/>
-    <path d="M23.5 22l1 1 2-2" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-  </svg>
-  <div>
-    <h1>KiBOM Enricher</h1>
-    <p>Upload a KiCad BOM CSV — get a fully enriched Excel BOM with live Mouser pricing</p>
+  <div class="logo-group">
+    <div class="logo-icon">
+      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="40" height="40" rx="10" fill="#0f1729"/>
+        <rect x=".5" y=".5" width="39" height="39" rx="9.5" stroke="#1f2d4a"/>
+        <!-- PCB trace lines -->
+        <path d="M8 13h12M8 20h8M8 27h10" stroke="#2a4070" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- Component box -->
+        <rect x="22" y="10" width="10" height="7" rx="1.5" fill="#162035" stroke="#2a4070" stroke-width="1.2"/>
+        <!-- Checkmark accent -->
+        <circle cx="27" cy="27" r="6" fill="#0f1729" stroke="#00d4ff" stroke-width="1.2"/>
+        <path d="M24.5 27l1.8 1.8 3-3" stroke="#00d4ff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Connector dots -->
+        <circle cx="20" cy="13" r="1.2" fill="#00d4ff"/>
+        <circle cx="20" cy="20" r="1.2" fill="#2a4070"/>
+      </svg>
+    </div>
+    <div class="logo-text">
+      <h1>Ki<span>BOM</span></h1>
+      <p>BOM ENRICHMENT ENGINE v2.0</p>
+    </div>
   </div>
+  <div class="header-badge">MOUSER · LCSC · NEXAR</div>
 </header>
 
 <main>
 
+  <div class="hero">
+    <div class="hero-label">KiCad BOM Enricher</div>
+    <h2>From bare CSV to<br><em>production-ready BOM</em></h2>
+    <p>Upload your KiCad netlist export — get live pricing, availability, and datasheet links in a polished Excel workbook.</p>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-chip"><span class="dot"></span> Live Mouser Pricing</div>
+    <div class="stat-chip"><span class="dot green"></span> Excel Export</div>
+    <div class="stat-chip">Open Source</div>
+  </div>
+
   <!-- Upload card -->
-  <div class="card" id="upload-card">
+  <div class="panel" id="upload-card">
     <div id="drop-zone">
-      <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-        <path stroke-linecap="round" stroke-linejoin="round"
-          d="M12 16.5V9.75m0 0-3 3m3-3 3 3M6.75 19.5a4.5 4.5 0 0 1-1.632-8.664 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z"/>
-      </svg>
-      <h2>Drop your KiCad BOM CSV here</h2>
-      <p>or <span class="btn-link" id="browse-link">browse to upload</span></p>
+      <div class="drop-icon">
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M12 16.5V9.75m0 0-3 3m3-3 3 3M6.75 19.5a4.5 4.5 0 0 1-1.632-8.664 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z"/>
+        </svg>
+      </div>
+      <h2>Drop KiCad BOM CSV here</h2>
+      <p>or <span class="btn-link" id="browse-link">browse to upload</span> &nbsp;·&nbsp; max 10 MB</p>
       <input type="file" id="file-input" accept=".csv" />
     </div>
     <div id="file-name">No file selected</div>
@@ -234,23 +671,29 @@
       <input type="text" id="project-name" placeholder="e.g. 8-Channel Solenoid Valve Controller" />
     </div>
 
-    <button id="submit-btn" disabled>Enrich BOM</button>
+    <button id="submit-btn" disabled>Enrich BOM →</button>
   </div>
 
   <!-- Progress card -->
-  <div class="card" id="progress-card">
+  <div class="panel" id="progress-card">
     <div class="prog-header">
       <div class="spinner" id="spinner"></div>
-      <h3 id="prog-title">Processing…</h3>
+      <h3 id="prog-title">Initialising pipeline…</h3>
     </div>
     <div class="bar-wrap"><div id="prog-bar"></div></div>
+    <div class="log-header">
+      <span class="dot red"></span>
+      <span class="dot yellow"></span>
+      <span class="dot green"></span>
+      <span>kibom — enrichment log</span>
+    </div>
     <div id="log-box"></div>
-    <a id="dl-btn" href="#" download>⬇ Download Enriched BOM (.xlsx)</a>
+    <a id="dl-btn" href="#" download>↓ Download Enriched BOM (.xlsx)</a>
   </div>
 
 </main>
 
-<footer>KiBOM — open source BOM enrichment tool</footer>
+<footer>KiBOM — open source BOM enrichment · KiCad 7/8 compatible</footer>
 
 <script>
   const dropZone   = document.getElementById("drop-zone");
@@ -289,7 +732,7 @@
       return;
     }
     selectedFile = file;
-    fileNameEl.textContent = `✔ ${file.name}  (${(file.size / 1024).toFixed(1)} KB)`;
+    fileNameEl.textContent = `✔  ${file.name}   (${(file.size / 1024).toFixed(1)} KB)`;
     fileNameEl.classList.add("has-file");
     if (!projectIn.value) {
       projectIn.value = file.name.replace(/\.csv$/i, "").replace(/[_-]+/g, " ");
@@ -306,14 +749,12 @@
     fd.append("project_name", projectIn.value.trim());
 
     submitBtn.disabled = true;
-
-    // Switch panels
     uploadCard.style.display   = "none";
     progressCard.style.display = "block";
 
     let jobId;
     try {
-      const res = await fetch("/upload", { method: "POST", body: fd });
+      const res  = await fetch("/upload", { method: "POST", body: fd });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Upload failed");
       jobId = data.job_id;
@@ -322,54 +763,60 @@
       return;
     }
 
-    // Stream progress via SSE
     const es = new EventSource(`/progress/${jobId}`);
     es.onmessage = e => {
       const payload = JSON.parse(e.data);
       if (payload.ping) return;
-
-      if (payload.msg) addLog(payload.msg);
+      if (payload.msg)      addLog(payload.msg);
       if (payload.pct != null) setBar(payload.pct);
-
-      if (payload.done) {
-        es.close();
-        finishOk(jobId);
-      } else if (payload.error) {
-        es.close();
-        showError(payload.error);
-      }
+      if (payload.done)  { es.close(); finishOk(jobId); }
+      else if (payload.error) { es.close(); showError(payload.error); }
     };
     es.onerror = () => { es.close(); showError("Connection lost."); };
   });
 
   // ── Helpers ─────────────────────────────────────────────────────────────────
+  function ts() {
+    const d = new Date();
+    return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
+  }
+
   function addLog(msg) {
-    const div = document.createElement("div");
-    if (msg.startsWith("❌"))       div.className = "line-err";
-    else if (msg.startsWith("✅") || msg.startsWith("⬇")) div.className = "line-ok";
-    else                             div.className = "line-info";
-    div.textContent = msg;
-    logBox.appendChild(div);
+    const row = document.createElement("div");
+    row.className = "log-line";
+
+    const stamp = document.createElement("span");
+    stamp.className = "ts";
+    stamp.textContent = ts();
+
+    const text = document.createElement("span");
+    if (msg.startsWith("❌"))                             text.className = "line-err";
+    else if (msg.startsWith("✅") || msg.startsWith("⬇")) text.className = "line-ok";
+    else                                                   text.className = "line-info";
+    text.textContent = msg;
+
+    row.appendChild(stamp);
+    row.appendChild(text);
+    logBox.appendChild(row);
     logBox.scrollTop = logBox.scrollHeight;
   }
 
-  function setBar(pct) {
-    progBar.style.width = pct + "%";
-  }
+  function setBar(pct) { progBar.style.width = pct + "%"; }
 
   function finishOk(jobId) {
     setBar(100);
     progBar.classList.add("done");
-    progTitle.textContent = "✅ BOM enriched successfully!";
+    progTitle.textContent = "BOM enriched successfully";
     spinner.style.display = "none";
     dlBtn.href = `/download/${jobId}`;
     dlBtn.style.display = "block";
-    addLog("⬇ Click the button below to download your BOM.");
+    addLog("✅ Pipeline complete — file is ready.");
+    addLog("⬇ Click the download button below.");
   }
 
   function showError(msg) {
     progBar.classList.add("error");
-    progTitle.textContent = "❌ Error";
+    progTitle.textContent = "Pipeline error";
     spinner.style.display = "none";
     addLog("❌ " + msg);
   }
